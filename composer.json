@@ -1,0 +1,54 @@
+{
+  "name": "centeron/laravel-roles-permissions",
+  "description": "Simple but powerful package for handling roles and permissions in Laravel",
+  "keywords": [
+    "laravel",
+    "roles",
+    "permissions",
+    "auth",
+    "acl",
+    "rbac",
+    "centeron",
+    "security"
+  ],
+  "homepage": "https://github.com/centeron/laravel-roles-permissions",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Shekhovtsov Yuri",
+      "email": "shekhovtsovyuri@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "laravel/framework": "~5.4.0|~5.5.0|~5.6.0|~5.7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit" : "^5.7|6.2|^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Centeron\\Permissions\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Centeron\\Permissions\\Tests\\": "tests"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Centeron\\Permissions\\ServiceProvider"
+      ]
+    }
+  }
+}
+
+

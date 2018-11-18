@@ -355,6 +355,7 @@ class AuthItem extends Model implements AuthItemContract
         $childs = $branches = [];
         $additionItems[] = $this->id;
         foreach (array_unique($additionItems) as $id) {
+            $branches[] = [$id];
             $this->getChildsRecursive($id, $parents, $childs, $branches);
         }
 
@@ -498,12 +499,7 @@ class AuthItem extends Model implements AuthItemContract
      */
     protected function getChildsRecursive($id, $childList, &$childs, &$branches)
     {
-        if (empty($branches)) {
-            $branches[] = [$id];
-            $currentBranchIdx = 0;
-        } else {
-            $currentBranchIdx = count($branches) - 1;
-        }
+        $currentBranchIdx = count($branches) - 1;
         if (isset($childList[$id])) {
             foreach ($childList[$id] as $childId) {
                 $childs[] = $childId;

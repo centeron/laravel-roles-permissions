@@ -321,9 +321,9 @@ The Blade directives work according these rules. The same is true of `authorize`
 
 ### Cache
 
-By default the cache is disabled. In spite of a relatively large number of database request (from 3 to 5, depending of situation)
+In spite of a relatively large number of database request (from 3 to 5, depending of situation)
 access checking performs quickly due to the simplicity of these requests to the database(select from the indexed columns of tables). 
-However, if you want to get rid of it completely you can enable the cache. Cache gets and saves data of each tables.
+Cache gets and saves data of each tables.
 
 Any changing of tables by the provided RBAC methods will reset the cache. You may also reset the cache manually:
 

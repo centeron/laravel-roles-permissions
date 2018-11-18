@@ -21,7 +21,7 @@ return [
         /**
          * Is the cache on?
          */
-        'enable' => false,
+        'enable' => true,
         /**
          * Name of cache key for auth items
          */

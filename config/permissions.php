@@ -31,5 +31,11 @@ return [
          * these items will updated by supplied functions for their manipulating
          */
         'cache_lifetime' => 60 * 24
+    ],
+    'errors' => [
+        /**
+         * Return exception if auth items have not found in the database
+         */
+        'forbid_missing_items' => false
     ]
 ];

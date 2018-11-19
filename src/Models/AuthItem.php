@@ -393,7 +393,7 @@ class AuthItem extends Model implements AuthItemContract
                 })->pluck('id')->all()
                 : static::whereIn('name', $newItemNames)->pluck('id')->all();
 
-            if (count($newItemIdsFromName) !== count($newItemNames)) {
+            if (count($newItemIdsFromName) !== count($newItemNames) && config('permissions.errors.forbid_missing_items')) {
                 throw new AuthItemNotFound('Some of items have not found by their names.');
             }
             $newItemIds = array_merge($newItemIds, $newItemIdsFromName);

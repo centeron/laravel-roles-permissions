@@ -2,6 +2,7 @@
 
 namespace Centeron\Permissions\Contracts;
 
+use Centeron\Permissions\Exceptions\RuleNotFound;
 use Illuminate\Support\Collection;
 
 /**
@@ -106,5 +107,15 @@ interface HasAuthItems
      * @return bool
      */
     public function canAllAuthItems($items, $params) : bool;
+
+    /**
+     * Check if the current model can perform actions
+     *
+     * @param array|integer|string|AuthItem $items - items of array could be ingeger, string or object type
+     * @param array $params - additional parameters
+     * @return array
+     * @throws RuleNotFound
+     */
+    public function canAuthItems($items, $params = []) : array;
 
 }

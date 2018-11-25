@@ -2,6 +2,7 @@
 
 namespace Centeron\Permissions\Traits;
 
+use Centeron\Permissions\CacheStorage;
 use Centeron\Permissions\Contracts\AuthAssigment;
 use Centeron\Permissions\Contracts\AuthItem;
 use Centeron\Permissions\Contracts\Rule;
@@ -177,34 +178,9 @@ trait HasAuthItems
      */
     public function canAnyAuthItems($items, $params = []) : bool
     {
-        if (!is_array($items)) {
-            $authItems[] = $items;
-        } else {
-            $authItems = $items;
-        }
-        $intersectAuthItemsIds = $this->intersectAuthItems(...$authItems);
-        if (empty($intersectAuthItemsIds)) {
-            return false;
-        }
-        $authItemsWithRules = app(AuthItem::class)::findWithRulesByIds($intersectAuthItemsIds)->toArray();
-        if (empty($authItemsWithRules)) {
-            return true;
-        }
-        foreach ($authItemsWithRules as $authItemsWithRule) {
-            if (!class_exists($authItemsWithRule['rule'])) {
-                throw new RuleNotFound("Rule class " . $authItemsWithRule['rule'] . " not found.");
-            }
-            /** @var Rule $rule */
-            $rule = new $authItemsWithRule['rule'];
-            if (!($rule instanceof Rule)) {
-                throw new RuleNotFound("Rule class " . $authItemsWithRule['rule'] . " not found.");
-            }
-            if ($rule->handle($authItemsWithRule, $this, $params)) {
-                return true;
-            }
-        }
+        $authItems = $this->canAuthItems($items, $params);
 
-        return false;
+        return in_array(true, $authItems);
     }
 
     /**
@@ -217,50 +193,55 @@ trait HasAuthItems
      */
     public function canAllAuthItems($items, $params = []) : bool
     {
+        $givenItemIds = app(AuthItem::class)::fetchId($items);
+        $authItemIds = $this->getAuthItems()->pluck('id')->all();
+
+        return array_diff($givenItemIds, $authItemIds) ? false : true;
+    }
+
+    /**
+     * Check if the current model can perform actions
+     *
+     * @param array|integer|string|AuthItem $items - items of array could be ingeger, string or object type
+     * @param array $params - additional parameters
+     * @return array
+     * @throws RuleNotFound
+     */
+    public function canAuthItems($items, $params = []) : array
+    {
         if (!is_array($items)) {
             $authItems[] = $items;
         } else {
             $authItems = $items;
         }
         $givenItemIds = app(AuthItem::class)::fetchId($authItems);
-        $authItemIds = $this->getAuthItems()->pluck('id')->all();
-        $diffAuthItemsIds = array_diff($givenItemIds, $authItemIds);
-        if (!empty($diffAuthItemsIds)) {
-            return false;
-        }
-        $authItemsWithRules = app(AuthItem::class)::findWithRulesByIds($givenItemIds)->toArray();
-        if (empty($authItemsWithRules)) {
-            return true;
-        }
-
-        foreach ($authItemsWithRules as $authItemsWithRule) {
-            if (!class_exists($authItemsWithRule['rule'])) {
-                throw new RuleNotFound("Rule class " . $authItemsWithRule['rule'] . " not found.");
-            }
-            /** @var Rule $rule */
-            $rule = new $authItemsWithRule['rule'];
-            if (!($rule instanceof Rule)) {
-                throw new RuleNotFound("Rule class " . $authItemsWithRule['rule'] . " not found.");
-            }
-            if (!$rule->handle($authItemsWithRule, $this, $params)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Return an intersect of passed items with model auth items
-     *
-     * @param array ...$items - items of array could be ingeger, string or object type
-     * @return array
-     */
-    protected function intersectAuthItems(...$items): array
-    {
-        $givenItemIds = app(AuthItem::class)::fetchId($items);
+        $givenAuthItems = (config('permissions.cache.enable'))
+            ? app(CacheStorage::class)->getAuthItems()->filter(function($value, $key) use ($givenItemIds) {
+                return in_array($key, $givenItemIds); })->toArray()
+            : app(AuthItem::class)::whereIn('id', $givenItemIds)->get()->toArray();
         $authItemIds = $this->getAuthItems()->pluck('id')->all();
 
-        return array_intersect($authItemIds, $givenItemIds);
+        $items = [];
+        foreach ($givenAuthItems as $givenAuthItem) {
+            if (!in_array($givenAuthItem['id'], $authItemIds)) {
+                $items[$givenAuthItem['rule']] = false;
+            } else {
+                if ($givenAuthItem['rule']) {
+                    if (!class_exists($givenAuthItem['rule'])) {
+                        throw new RuleNotFound("Rule class " .$givenAuthItem['rule'] . " not found.");
+                    }
+                    /** @var Rule $rule */
+                    $rule = new $givenAuthItem['rule'];
+                    if (!($rule instanceof Rule)) {
+                        throw new RuleNotFound("Rule class " . $givenAuthItem['rule'] . " not found.");
+                    }
+                    $items[$givenAuthItem['name']] = $rule->handle($givenAuthItem, $this, $params);
+                } else {
+                    $items[$givenAuthItem['name']] = true;
+                }
+            }
+        }
+
+        return $items;
     }
 }

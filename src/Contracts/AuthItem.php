@@ -4,6 +4,7 @@ namespace Centeron\Permissions\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 /**
@@ -177,4 +178,12 @@ interface AuthItem
      * @return HasMany
      */
     public function assignments(): HasMany;
+
+    /**
+     * Get Base Auth
+     *
+     * @return HasOne
+     */
+    public function baseAuth(): HasOne;
+
 }

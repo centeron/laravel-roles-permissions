@@ -217,14 +217,18 @@ trait HasAuthItems
         $givenItemIds = app(AuthItem::class)::fetchId($authItems);
         $givenAuthItems = (config('permissions.cache.enable'))
             ? app(CacheStorage::class)->getAuthItems()->filter(function($value) use ($givenItemIds) {
-                return in_array($value['id'], $givenItemIds); })->toArray()
-            : app(AuthItem::class)::whereIn('id', $givenItemIds)->get()->toArray();
+                return (in_array($value['id'], $givenItemIds) || in_array($value['base_auth_id'], $givenItemIds)); })
+                ->toArray()
+            : app(AuthItem::class)::whereIn('id', $givenItemIds)
+                ->orWhereIn('base_auth_id', $givenItemIds)
+                ->get()
+                ->toArray();
         $authItemIds = $this->getAuthItems()->pluck('id')->all();
 
         $items = [];
         foreach ($givenAuthItems as $givenAuthItem) {
             if (!in_array($givenAuthItem['id'], $authItemIds)) {
-                $items[$givenAuthItem['rule']] = false;
+                $items[$givenAuthItem['name']] = false;
             } else {
                 if ($givenAuthItem['rule']) {
                     if (!class_exists($givenAuthItem['rule'])) {

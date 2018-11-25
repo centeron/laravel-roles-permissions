@@ -80,7 +80,7 @@ class CacheStorage
     protected function getAllAuthItems(): Collection
     {
         return app(AuthItem::class)->with('assignments:auth_item_id,model,model_id')
-            ->get(['id', 'name',  'type', 'rule', 'data']);
+            ->get(['id', 'name',  'type', 'rule', 'data', 'base_auth_id']);
     }
 
     /**

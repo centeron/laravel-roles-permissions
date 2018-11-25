@@ -21,6 +21,7 @@ class CreatePermissionTables extends Migration
             $table->smallInteger('type')->index();
             $table->string('rule')->nullable();
             $table->binary('data')->nullable();
+            $table->unsignedInteger('base_auth_id')->nullable()->index();
             $table->timestamps();
         });
 

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Centeron\Permissions\Contracts\AuthItem as AuthItemContract;
 use Centeron\Permissions\Exceptions\AuthItemAlreadyExist;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ use Centeron\Permissions\Contracts\AuthAssigment;
  * @property integer $type
  * @property string rule
  * @property string $data
+ * @property integer $base_auth_id
  * @property string $created_at
  * @property string $updated_at
  *
@@ -33,7 +35,7 @@ class AuthItem extends Model implements AuthItemContract
      * {@inheritdoc}
      */
     protected $fillable = [
-        'rule', 'name', 'type', 'data'
+        'rule', 'name', 'type', 'data', 'base_auth_id'
     ];
 
     /**
@@ -111,6 +113,16 @@ class AuthItem extends Model implements AuthItemContract
     public function directParents(): BelongsToMany
     {
         return $this->belongsToMany(static::class, config('permissions.table_names.auth_item_childs'), 'child_id', 'parent_id');
+    }
+
+    /**
+     * Get Base Auth
+     *
+     * @return HasOne
+     */
+    public function baseAuth(): HasOne
+    {
+        return $this->hasOne(static::class, 'id', 'base_auth_id');
     }
 
     /**

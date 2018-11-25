@@ -317,6 +317,9 @@ an array of roles/permissions, and the second is an array of variables:
 $user->canAnyAuthItems(['View post', 'Edit post'], [1]); // true, possible edit or view a post with ID = 1
 $user->hasAllAuthItems(['View post', 'Edit post'], [1]); // true, possible edit and view a post with ID = 1
 ```
+
+Also you can determine via trait method `canAuthItems` which permissions are attached to user from the passed list.
+
 The Blade directives work according these rules. The same is true of `authorize` method and `Gate` methods.
 
 ### Cache

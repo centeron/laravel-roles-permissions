@@ -216,8 +216,8 @@ trait HasAuthItems
         }
         $givenItemIds = app(AuthItem::class)::fetchId($authItems);
         $givenAuthItems = (config('permissions.cache.enable'))
-            ? app(CacheStorage::class)->getAuthItems()->filter(function($value, $key) use ($givenItemIds) {
-                return in_array($key, $givenItemIds); })->toArray()
+            ? app(CacheStorage::class)->getAuthItems()->filter(function($value) use ($givenItemIds) {
+                return in_array($value['id'], $givenItemIds); })->toArray()
             : app(AuthItem::class)::whereIn('id', $givenItemIds)->get()->toArray();
         $authItemIds = $this->getAuthItems()->pluck('id')->all();
 

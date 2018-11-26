@@ -151,7 +151,10 @@ trait HasAuthItems
      */
     public function hasAnyAuthItems(...$items): bool
     {
-        return !empty($this->intersectAuthItems(...$items)) ? true : false;
+       $givenItemIds = app(AuthItem::class)::fetchId($items);
+       $authItemIds = $this->getAuthItems()->pluck('id')->all();
+
+        return !empty(array_intersect($authItemIds, $givenItemIds)) ? true : false;
     }
 
     /**

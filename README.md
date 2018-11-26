@@ -317,7 +317,24 @@ an array of roles/permissions, and the second is an array of variables:
 $user->canAnyAuthItems(['View post', 'Edit post'], [1]); // true, possible edit or view a post with ID = 1
 $user->hasAllAuthItems(['View post', 'Edit post'], [1]); // true, possible edit and view a post with ID = 1
 ```
+
+Also you can determine via trait method `canAuthItems` which permissions are attached to user from the passed list.
+
 The Blade directives work according these rules. The same is true of `authorize` method and `Gate` methods.
+
+**Split of access among users by parameters**
+
+The field `base_auth_id` in `AuthItem` can be empty. It can be used to connect with other`AuthItem`, 
+which is a base item. Methods `canAuthItems`, `canAnyAuthItems`, `canAllAuthItems` check access
+ not only using given permissions (and their inheritances), but also considering `base_auth_id` permisssions.
+ 
+ Let's have a look on the case when users have to have accesses to only own folders in a file manager. The permission which is responsible
+ for the a access is `AuthItem` with `ID=1` and name `Folder View`. All what we need to do is to create new permissions `AuthItem` for
+ each of users with folder names in the `data`-field and rule-handler in the `rule`-field. Set `1` in `base_auth_id`-field (ID `Folder View`)
+
+ When user try to access a folder `folder_name` via `$user->canAnyAuthItems(['Folder View'], ['folder_name']);`
+  not only the check `Folder View` will be made, but checking other permissions as well with `base_auth_id = 1`, matching
+   `folder_name` with `data` of `AuthItem` applying `rule`. 
 
 ### Cache
 

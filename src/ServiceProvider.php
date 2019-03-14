@@ -57,6 +57,8 @@ class ServiceProvider extends BaseServiceProvider
                 DetachAuthItems::class
             ]);
         }
+        
+        $this->registerBladeExtensions();
     }
 
     /**
@@ -72,8 +74,6 @@ class ServiceProvider extends BaseServiceProvider
 
         $this->app->bind(AuthItemContract::class, AuthItem::class);
         $this->app->bind(AuthAssigmentContract::class, AuthAssigment::class);
-
-        $this->registerBladeExtensions();
     }
 
     /**

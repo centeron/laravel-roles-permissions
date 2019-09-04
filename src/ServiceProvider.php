@@ -61,6 +61,8 @@ class ServiceProvider extends BaseServiceProvider
                 DetachAuthItems::class
             ]);
         }
+        
+        $this->registerBladeExtensions();
     }
 
     /**

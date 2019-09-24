@@ -19,6 +19,7 @@ use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Illuminate\View\Compilers\BladeCompiler;
 
 /**
  * Class ServiceProvider
@@ -61,7 +62,7 @@ class ServiceProvider extends BaseServiceProvider
                 DetachAuthItems::class
             ]);
         }
-        
+
         $this->registerBladeExtensions();
     }
 
@@ -79,11 +80,7 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->bind(AuthItemContract::class, AuthItem::class);
         $this->app->bind(AuthAssigmentContract::class, AuthAssigment::class);
 
-        try {
-            $this->registerBladeExtensions();
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
+        $this->registerBladeExtensions();
     }
 
     /**
@@ -93,28 +90,25 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function registerBladeExtensions()
     {
-        Blade::directive('authHasAny', static function ($expression) {
-            return "<?php if(auth()->check() && auth()->user()->hasAnyAuthItems($expression)) { ?>";
-        });
-
-        Blade::directive('authHasAll', static function ($expression) {
-            return "<?php if(auth()->check() && auth()->user()->hasAllAuthItems($expression))) { ?>";
-        });
-
-        Blade::directive('authCanAny', static function ($expression) {
-            return "<?php if(auth()->check() && auth()->user()->canAnyAuthItems($expression)) { ?>";
-        });
-
-        Blade::directive('authCanAll', static function ($expression) {
-            return "<?php if(auth()->check() && auth()->user()->canAllAuthItems($expression)) { ?>";
-        });
-
-        Blade::directive('authElse', static function () {
-            return '<?php } else { ?>';
-        });
-
-        Blade::directive('authEnd', static function () {
-            return '<?php } ?>';
+        $this->app->afterResolving('blade.compiler', static function (BladeCompiler $bladeCompiler) {
+            $bladeCompiler->directive('authHasAny', static function ($expression) {
+                return "<?php if(auth()->check() && auth()->user()->hasAnyAuthItems($expression)) { ?>";
+            });
+            $bladeCompiler->directive('authHasAll', static function ($expression) {
+                return "<?php if(auth()->check() && auth()->user()->hasAllAuthItems($expression))) { ?>";
+            });
+            $bladeCompiler->directive('authCanAny', static function ($expression) {
+                return "<?php if(auth()->check() && auth()->user()->canAnyAuthItems($expression)) { ?>";
+            });
+            $bladeCompiler->directive('authCanAll', static function ($expression) {
+                return "<?php if(auth()->check() && auth()->user()->canAllAuthItems($expression)) { ?>";
+            });
+            $bladeCompiler->directive('authElse', static function () {
+                return '<?php } else { ?>';
+            });
+            $bladeCompiler->directive('authEnd', static function () {
+                return '<?php } ?>';
+            });
         });
     }
 }
